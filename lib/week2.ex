@@ -83,4 +83,68 @@ defmodule Minimal do
   def extractRandomN(list, n) do
     1..n |> Enum.map(fn _ -> Enum.random(list) end)
   end
+
+  @doc """
+    Write a function that returns the first n elements of the Fibonacci sequence.
+  
+    ## Examples
+  
+        iex> Minimal.firstFibonacciElements(7)
+        [0, 1, 1, 2, 3, 5, 8]
+  
+        iex> Minimal.firstFibonacciElements(1)
+        [0]
+  
+        iex> Minimal.firstFibonacciElements(0)
+        []
+  """
+  def fib(0), do: 0
+  def fib(1), do: 1
+  def fib(n), do: fib(n - 1) + fib(n - 2)
+
+  def firstFibonacciElements(n) do
+    cond do
+      n == 0 -> []
+      n != 0 -> Enum.map(0..(n - 1), fn i -> fib(i) end)
+    end
+  end
+
+  @doc """
+    Write a function that, given a dictionary would translate a sentence.
+  
+    ## Examples
+  
+        iex> Minimal.translator(%{"mama" => "mother", "papa" => "father"}, "mama is with papa")
+        "mother is with father"
+  
+        iex> Minimal.translator(%{"none" => "all"}, "is that all?")
+        "is that all?"
+  
+        iex> Minimal.translator(%{"none" => "all"}, "")
+        ""
+  
+  """
+  def process(key, map) do
+    value = Map.get(map, key)
+    str_value = if value, do: "#{value}", else: "#{key}"
+
+    # return:
+    "#{str_value}"
+  end
+
+  def translator(map, expr) do
+    expr
+    |> String.split(" ")
+    |> Enum.map_join(" ", fn target -> Minimal.process(target, map) end)
+  end
+
+  @doc """
+    Write a function that recieves as input three digits and arranges them in an order
+    that would create the smallest possible number.
+  
+    ❗ Numbers cannot start with zero.
+  """
+  def smallestNumber(a, b, c) do
+    Enum.sort([a, b, c])
+  end
 end
