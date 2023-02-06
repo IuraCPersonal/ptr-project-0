@@ -20,21 +20,11 @@ All the solutions are written in `Elixir`.
 
 ## ✨ TASKS
 
-### POW1 - WELCOME
+You can find all the tasks DONE and UNDONE in this <a href="https://github.com/IuraCPersonal/ptr-project-0/tree/main/lib">README</a> file.
 
-#### MINIMAL TASKS
+## 🚀 HOW TO RUN
 
-- [x] Follow an installation guide to install the language / development environment of your choice.
-- [x] Write a script that would print the message “Hello PTR” on the screen. Execute it. 
-
-#### MAIN TASK
-
-- [x] Initialize a VCS repository for your project. Push your project to a remote repo.
-
-#### BONUS TASKS
-
-- [x] Write a comprehensive readme for your repository.
-- [x] Create a unit test for your project. Execute it. 
+`mix test` in order to run all the doctests.
 
 ## 📮 CONTACT
 
