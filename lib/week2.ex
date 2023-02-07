@@ -254,8 +254,6 @@ defmodule Minimal do
   end
 end
 
-IO.inspect(Minimal.listRightAngleTriangles())
-
 defmodule Main do
   @doc """
     Write a function that eliminates consecutive duplicates in a list.
@@ -362,4 +360,126 @@ defmodule Main do
       (chr |> String.to_charlist() |> hd) - cipher
     end
   end
+
+  def flatten(list) do
+    flatten_helper(list, [])
+  end
+
+  defp flatten_helper(list, acc) do
+    case list do
+      [] ->
+        acc
+
+      [head | tail] ->
+        if is_list(head),
+          do: flatten_helper(head, flatten_helper(tail, acc)),
+          else: flatten_helper(tail, [head | acc])
+    end
+  end
+
+  def findCombinations(combinations, expr, previous, index, map) do
+    try do
+      cond do
+        index == String.length(expr) ->
+          throw(:break)
+
+        true ->
+          letters = Map.get(map, String.at(expr, index))
+
+          for i <- 0..(length(letters) - 1) do
+            Main.findCombinations(
+              combinations,
+              expr,
+              previous <> Enum.at(letters, i),
+              index + 1,
+              map
+            )
+          end
+      end
+    catch
+      :break -> previous
+    end
+  end
+
+  @doc """
+    Write a function that, given a string of digits from 2 to 9, would return all
+    possible letter combinations that the number could represent (think phones with buttons)
+  
+    ## Examples
+  
+        iex> Main.lettersCombinations("23")
+        ["af", "ae", "ad", "bf", "be", "bd", "cf", "ce", "cd"]
+  """
+  def lettersCombinations(expr) do
+    combinations = []
+
+    map = %{
+      "2" => ["a", "b", "c"],
+      "3" => ["d", "e", "f"],
+      "4" => ["g", "h", "i"],
+      "5" => ["j", "k", "l"],
+      "6" => ["m", "n", "o"],
+      "7" => ["p", "q", "r", "s"],
+      "8" => ["t", "u", "v"],
+      "9" => ["w", "x", "y", "z"]
+    }
+
+    combinations = findCombinations(combinations, expr, "", 0, map)
+    combinations |> Main.flatten()
+  end
+
+  @doc """
+    White a function that, given an array of strings, would group the anagrams
+    together.
+  
+    ## Examples
+  
+        iex> Main.groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"])
+        %{"abt" => ["bat"], "aet" => ["eat", "tea", "ate"], "ant" => ["tan", "nat"]}
+  """
+  def sortString(expr) do
+    expr |> String.graphemes() |> Enum.sort() |> List.to_string()
+  end
+
+  def groupAnagrams(list) do
+    dict =
+      Enum.reduce(list, %{}, fn word, acc ->
+        Map.put(acc, sortString(word), [])
+      end)
+
+    Enum.reduce(list, dict, fn word, acc ->
+      Map.update!(acc, sortString(word), fn value ->
+        value ++ [word]
+      end)
+    end)
+  end
 end
+
+defmodule Bonus do
+  def toRoman(num) do
+    roman_map = [
+      {1000, "M"},
+      {900, "CM"},
+      {500, "D"},
+      {400, "CD"},
+      {100, "C"},
+      {90, "XC"},
+      {50, "L"},
+      {40, "XL"},
+      {10, "X"},
+      {9, "IX"},
+      {5, "V"},
+      {4, "IV"},
+      {1, "I"}
+    ]
+
+    Enum.reduce(roman_map, {"", num}, fn {arabic, roman}, {result, n} ->
+      if n >= arabic,
+        do: {result <> roman, n - arabic},
+        else: {result, n}
+    end)
+    |> elem(0)
+  end
+end
+
+IO.puts(Bonus.toRoman(13))
