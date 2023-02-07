@@ -143,9 +143,51 @@ defmodule Minimal do
     that would create the smallest possible number.
   
     ❗ Numbers cannot start with zero.
+  
+    ## Examples
+  
+        iex> Minimal.smallestNumber(4, 5, 3)
+        345
+  
+        iex> Minimal.smallestNumber(0, 3, 4)
+        304
   """
   def smallestNumber(a, b, c) do
-    Enum.sort([a, b, c])
+    list = Enum.sort([a, b, c])
+
+    count_zeros =
+      Enum.reduce(list, 0, fn target, acc ->
+        if target == 0, do: acc + 1, else: acc
+      end)
+
+    e1 = Enum.at(list, 0)
+    e2 = Enum.at(list, 1)
+
+    case count_zeros do
+      2 ->
+        Enum.reduce(list |> :lists.reverse(), "", fn x, acc ->
+          acc <> "#{x}"
+        end)
+        |> String.to_integer()
+
+      1 ->
+        Enum.reduce(
+          list
+          |> List.replace_at(0, e2)
+          |> List.replace_at(1, e1),
+          "",
+          fn x, acc ->
+            acc <> "#{x}"
+          end
+        )
+        |> String.to_integer()
+
+      _ ->
+        Enum.reduce(list, "", fn x, acc ->
+          acc <> "#{x}"
+        end)
+        |> String.to_integer()
+    end
   end
 
   @doc """
@@ -179,6 +221,145 @@ defmodule Minimal do
       end
     catch
       :break -> list
+    end
+  end
+
+  @doc """
+    Write a function that lists all tuples a, b, c such that a^2 + b^2 = c^2 and a, b <= 20.
+  
+    ## Examples
+  
+        iex> Minimal.listRightAngleTriangles()
+  """
+  def listRightAngleTriangles(a \\ 20, b \\ 20, c \\ 20) do
+    list =
+      for i <- 1..a,
+          j <- 1..b,
+          k <- 1..c,
+          do:
+            if(:math.pow(i, 2) + :math.pow(j, 2) == :math.pow(k, 2),
+              do: {i, j, k}
+            )
+
+    list
+    |> Enum.filter(fn x ->
+      if x != "" do
+        x
+      end
+    end)
+
+    # |> Enum.filter(fn
+    #   nil -> false
+    # end)
+  end
+end
+
+IO.inspect(Minimal.listRightAngleTriangles())
+
+defmodule Main do
+  @doc """
+    Write a function that eliminates consecutive duplicates in a list.
+  
+    ## Examples
+  
+        iex> Main.removeConsecutiveDuplicates([1, 2, 2, 3])
+        [1, 2, 3]
+  
+        iex> Main.removeConsecutiveDuplicates([1, 1, 1])
+        [1]
+  """
+  def removeConsecutiveDuplicates(list) do
+    list
+    |> Enum.reduce([], fn target, acc ->
+      case acc do
+        [^target | _] -> acc
+        _ -> [target | acc]
+      end
+    end)
+    |> :lists.reverse()
+  end
+
+  @doc """
+    Write a function that, given an array of strings, will return the words that can
+    be typed using only one row of the letters on an English keyboard layout.
+  
+    ## Examples
+  
+        iex>Main.lineWords(["asd", "aaa", "bcd", "qaz"])
+        ["asd", "aaa"]
+  
+        iex>Main.lineWords(["qwerty", "asus"])
+        ["qwerty"]
+  
+        iex>Main.lineWords(["Hello", "Alaska", "Dad", "Peace"])
+        ["Alaska", "Dad"]
+  
+  """
+  def lineWords(list) do
+    map = %{
+      "q" => 1,
+      "a" => 2,
+      "z" => 3,
+      "w" => 1,
+      "s" => 2,
+      "x" => 3,
+      "e" => 1,
+      "d" => 2,
+      "c" => 3,
+      "r" => 1,
+      "f" => 2,
+      "v" => 3,
+      "t" => 1,
+      "g" => 2,
+      "b" => 3,
+      "y" => 1,
+      "h" => 2,
+      "n" => 3,
+      "u" => 1,
+      "j" => 2,
+      "m" => 3,
+      "i" => 1,
+      "k" => 2,
+      "o" => 1,
+      "l" => 2,
+      "p" => 1
+    }
+
+    for word <- list do
+      rowNum = Map.get(map, String.at(word |> String.downcase(), 0))
+
+      if Enum.reduce(
+           word |> String.downcase() |> String.graphemes(),
+           true,
+           fn char, acc ->
+             acc and Map.get(map, char) == rowNum
+           end
+         ),
+         do: word
+    end
+    |> Enum.filter(fn word -> word != nil end)
+  end
+
+  @doc """
+    Create a pair of functions to encode and decode strings using the Caesar cipher.
+  
+    ## Examples
+  
+        iex> Main.encode("hello", 6)
+        'nkrru'
+  
+        iex> Main.decode("bbbb", 1)
+        'aaaa'
+  """
+  def encode(expr, cipher) do
+    for chr <- expr |> String.graphemes() do
+      (chr |> String.to_charlist() |> hd) + cipher
+    end
+  end
+
+  def decode(expr, cipher) do
+    for chr <- expr |> String.graphemes() do
+      (chr |> String.to_charlist() |> hd) - cipher
     end
   end
 end
