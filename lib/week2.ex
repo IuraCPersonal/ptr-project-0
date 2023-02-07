@@ -147,4 +147,38 @@ defmodule Minimal do
   def smallestNumber(a, b, c) do
     Enum.sort([a, b, c])
   end
+
+  @doc """
+    Write a function that would rotate a list n places to the left.
+  
+    ## Examples
+  
+        iex> Minimal.rotateLeft([1, 2, 4, 8, 4], 3)
+        [8, 4, 1, 2, 4]
+  
+        iex> Minimal.rotateLeft([1, 1, 1, 1], 3)
+        [1, 1, 1, 1]
+  
+        iex> Minimal.rotateLeft([1, 2], 3)
+        [2, 1]
+  """
+  def rotateLeft(list, n) do
+    val = elem(List.pop_at(list, 0), 0)
+
+    try do
+      cond do
+        n == 0 ->
+          throw(:break)
+
+        true ->
+          list
+          |> List.pop_at(0)
+          |> elem(1)
+          |> List.insert_at(-1, val)
+          |> Minimal.rotateLeft(n - 1)
+      end
+    catch
+      :break -> list
+    end
+  end
 end
