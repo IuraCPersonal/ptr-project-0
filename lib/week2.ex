@@ -124,7 +124,7 @@ defmodule Minimal do
         ""
   
   """
-  def process(key, map) do
+  def keyHandler(key, map) do
     value = Map.get(map, key)
     str_value = if value, do: "#{value}", else: "#{key}"
 
@@ -135,7 +135,7 @@ defmodule Minimal do
   def translator(map, expr) do
     expr
     |> String.split(" ")
-    |> Enum.map_join(" ", fn target -> Minimal.process(target, map) end)
+    |> Enum.map_join(" ", fn target -> Minimal.keyHandler(target, map) end)
   end
 
   @doc """
@@ -247,10 +247,6 @@ defmodule Minimal do
         x
       end
     end)
-
-    # |> Enum.filter(fn
-    #   nil -> false
-    # end)
   end
 end
 
@@ -349,15 +345,15 @@ defmodule Main do
         iex> Main.decode("bbbb", 1)
         'aaaa'
   """
-  def encode(expr, cipher) do
+  def encode(expr, shift) do
     for chr <- expr |> String.graphemes() do
-      (chr |> String.to_charlist() |> hd) + cipher
+      (chr |> String.to_charlist() |> hd) + shift
     end
   end
 
-  def decode(expr, cipher) do
+  def decode(expr, shift) do
     for chr <- expr |> String.graphemes() do
-      (chr |> String.to_charlist() |> hd) - cipher
+      (chr |> String.to_charlist() |> hd) - shift
     end
   end
 
@@ -452,5 +448,112 @@ defmodule Main do
         value ++ [word]
       end)
     end)
+  end
+end
+
+defmodule Bonus do
+  @doc """
+    Write a function to find the longest common prefix string amongst a list of
+    strings.
+  
+    ## Examples
+  
+        iex> Bonus.commonPrefix(["flower", "flow", "flight"])
+        "fl"
+  
+        iex> Bonus.commonPrefix(["alpha", "beta", "gamma"])
+        ""
+  
+  """
+  def commonPrefix(list, n \\ nil) do
+    size = length(list)
+
+    cond do
+      n == 0 ->
+        ""
+
+      size == 1 ->
+        Enum.at(list, 0)
+
+      true ->
+        min_len =
+          if n != nil,
+            do: n,
+            else:
+              Enum.min_by(list, fn target ->
+                String.length(target)
+              end)
+              |> String.length()
+
+        prefix = String.slice(Enum.at(list, 0), 0, min_len)
+
+        if Enum.all?(list, fn target ->
+             String.slice(target, 0, min_len) == prefix
+           end),
+           do: prefix,
+           else: commonPrefix(list, min_len - 1)
+    end
+  end
+
+  @doc """
+    Write a function to convert arabic numbers to roman numerals.
+  
+    ## Examples
+  
+        iex> Bonus.toRoman(13)
+        "XIII"
+  
+        iex> Bonus.toRoman(1)
+        "I"
+  """
+  def toRoman(expr) do
+    cond do
+      expr == 0 ->
+        ""
+
+      true ->
+        roman_values = [
+          {1000, "M"},
+          {900, "CM"},
+          {500, "D"},
+          {400, "CD"},
+          {100, "C"},
+          {90, "XC"},
+          {50, "L"},
+          {40, "XL"},
+          {10, "X"},
+          {9, "IX"},
+          {5, "V"},
+          {4, "IV"},
+          {1, "I"}
+        ]
+
+        roman_values
+        |> Enum.find(fn {arabic, _roman} -> expr >= arabic end)
+        |> (fn {arabic, roman} ->
+              roman <> toRoman(expr - arabic)
+            end).()
+    end
+  end
+
+  @doc """
+    Write a function to calculate the prime factorization of an integer
+  
+    ## Examples
+  
+        iex> Bonus.factorize(13)
+        [13]
+  
+        iex> Bonus.factorize(42)
+        [2, 3, 7]
+  """
+  def factorize(num) do
+    for x <- 2..num do
+      if Minimal.isPrime(x), do: x
+    end
+    |> Enum.filter(fn x ->
+      x != nil
+    end)
+    |> Enum.filter(fn x -> rem(num, x) == 0 end)
   end
 end

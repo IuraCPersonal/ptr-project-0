@@ -13,7 +13,7 @@ All the solutions are written in `Elixir`.
 |  Week No. | Status |
 |-----------|--------|
 | WEEK 01   | `10`   |
-| WEEK 02   | `NONE` |
+| WEEK 02   | `DONE` |
 | WEEK 03   | `NONE` |
 | WEEK 04   | `NONE` |
 | WEEK 05   | `NONE` |
