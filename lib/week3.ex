@@ -1,5 +1,15 @@
 defmodule Week3 do
   defmodule Minimal.SimpleActor do
+    @doc """
+      ## TODO:
+        Create an actor that prints on the screen any message it receives
+    
+      ## Examples:
+    
+          iex> Week3.Minimal.SimpleActor.start()
+          iex> Week3.Minimal.SimpleActor.echo("Hello, PTR")
+          "Hello, PTR"
+    """
     def start() do
       pid = spawn(&loop/0)
       Process.register(pid, :echo_msg)
@@ -25,6 +35,20 @@ defmodule Week3 do
   end
 
   defmodule Minimal.ModificatorActor do
+    @doc """
+      ## TODO:
+        Create an actor that returns any message it receives, while modifying it. Infer
+        the modification from the following example:
+    
+      ## Example:
+    
+          iex> Week3.Minimal.ModificatorActor.start()
+          iex> Week3.Minimal.ModificatorActor.modify(4)
+          5
+    
+          iex> Week3.Minimal.ModificatorActor.modify("HELLO")
+          "hello"
+    """
     def start() do
       pid = spawn(&loop/0)
       Process.register(pid, :modificator)
@@ -56,13 +80,24 @@ defmodule Week3 do
   end
 
   defmodule Minimal.MonitoringActor do
+    @doc """
+      ## TODO:
+          Create a two actors, actor one 'monitoring' the other. If the second actor
+          stops, actor one gets notified via a message.
+    
+      ## Examples:
+    
+          iex> {pid1, _pid2} = Week3.Minimal.MonitoringActor.start()
+          iex> Process.exit(pid1, :kill)
+          true
+    """
     def start() do
       pid1 = spawn(fn -> first_actor() end)
       pid2 = spawn(fn -> second_actor(pid1) end)
       {pid1, pid2}
     end
 
-    defp first_actor do
+    defp first_actor() do
       receive do
         msg ->
           msg
@@ -70,12 +105,14 @@ defmodule Week3 do
     end
 
     defp second_actor(target_pid) do
+      # create a new reference _ref that identifies the monitoring process
       _ref = Process.monitor(target_pid)
       second_actor_loop()
     end
 
     def second_actor_loop() do
       receive do
+        # it means that the process with the ID _pid that is being monitored has terminated
         {:DOWN, _ref, :process, _pid, reason} ->
           IO.puts("The actor I monitor exited because #{reason}")
 
@@ -87,6 +124,17 @@ defmodule Week3 do
   end
 
   defmodule Minimal.AverageActor do
+    @doc """
+      ## TODO:
+        Create an actor which receives numbers and with each request prints out the
+        current average.
+    
+      ## Examples:
+    
+          iex> pid = Week3.Minimal.AverageActor.start()
+          iex> send(pid, 23)
+          iex> send(pid, 2)
+    """
     def start() do
       _pid = spawn(fn -> loop() end)
     end
@@ -101,6 +149,18 @@ defmodule Week3 do
   end
 
   defmodule Main.FIFOQueue do
+    @doc """
+      ## TODO:
+        Create an actor which maintains a simple FIFO queue. You should write helper
+        functions to create an API for the user, which hides how the queue is implemented.
+    
+      ## Examples:
+    
+        iex> Week3.Main.FIFOQueue.start_link()
+        iex> Week3.Main.FIFOQueue.push(4)
+        iex> Week3.Main.FIFOQueue.pop()
+        4
+    """
     use Agent
 
     def start_link() do
@@ -118,6 +178,9 @@ defmodule Week3 do
           case state do
             [head | tail] ->
               {head, tail}
+
+            [] ->
+              raise "Queue Empty!"
           end
         end
       )
@@ -160,6 +223,31 @@ defmodule Week3 do
 
     def get_counter(semaphore) do
       Agent.get(semaphore, fn state -> Map.get(state, :counter) end)
+    end
+  end
+
+  defmodule Bonus.Scheduler do
+    def schedule(args) do
+      worker_node = fn ->
+        if :rand.uniform(2) == 1 do
+          {:error, "Unlucky"}
+        else
+          {:ok, "Miau"}
+        end
+      end
+
+      # Task.async to spawn the task as a separate process
+      # Task.await to wait for it to complete and return the result
+      # pattern-match on the task result
+      case Task.async(worker_node) |> Task.await() do
+        {:error, reason} ->
+          IO.puts("Task failed: #{reason}")
+          schedule(args)
+
+        {:ok, message} ->
+          IO.puts("Task successful: #{message}")
+          :ok
+      end
     end
   end
 end
