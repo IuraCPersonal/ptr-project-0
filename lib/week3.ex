@@ -3,9 +3,9 @@ defmodule Week3 do
     @doc """
       ## TODO:
         Create an actor that prints on the screen any message it receives
-    
+
       ## Examples:
-    
+
           iex> Week3.Minimal.SimpleActor.start()
           iex> Week3.Minimal.SimpleActor.echo("Hello, PTR")
           "Hello, PTR"
@@ -15,6 +15,7 @@ defmodule Week3 do
       Process.register(pid, :echo_msg)
     end
 
+    # receives messages from its mailbox and processes them
     defp loop() do
       receive do
         {:echo, msg, reply_pid} ->
@@ -39,13 +40,13 @@ defmodule Week3 do
       ## TODO:
         Create an actor that returns any message it receives, while modifying it. Infer
         the modification from the following example:
-    
+
       ## Example:
-    
+
           iex> Week3.Minimal.ModificatorActor.start()
           iex> Week3.Minimal.ModificatorActor.modify(4)
           5
-    
+
           iex> Week3.Minimal.ModificatorActor.modify("HELLO")
           "hello"
     """
@@ -84,9 +85,9 @@ defmodule Week3 do
       ## TODO:
           Create a two actors, actor one 'monitoring' the other. If the second actor
           stops, actor one gets notified via a message.
-    
+
       ## Examples:
-    
+
           iex> {pid1, _pid2} = Week3.Minimal.MonitoringActor.start()
           iex> Process.exit(pid1, :kill)
           true
@@ -107,10 +108,10 @@ defmodule Week3 do
     defp second_actor(target_pid) do
       # create a new reference _ref that identifies the monitoring process
       _ref = Process.monitor(target_pid)
-      second_actor_loop()
+      second_actor_handler()
     end
 
-    def second_actor_loop() do
+    def second_actor_handler() do
       receive do
         # it means that the process with the ID _pid that is being monitored has terminated
         {:DOWN, _ref, :process, _pid, reason} ->
@@ -118,7 +119,7 @@ defmodule Week3 do
 
         _ ->
           IO.puts("I do not know how to response to this message.")
-          second_actor_loop()
+          second_actor_handler()
       end
     end
   end
@@ -128,9 +129,9 @@ defmodule Week3 do
       ## TODO:
         Create an actor which receives numbers and with each request prints out the
         current average.
-    
+
       ## Examples:
-    
+
           iex> pid = Week3.Minimal.AverageActor.start()
           iex> send(pid, 23)
           iex> send(pid, 2)
@@ -153,9 +154,9 @@ defmodule Week3 do
       ## TODO:
         Create an actor which maintains a simple FIFO queue. You should write helper
         functions to create an API for the user, which hides how the queue is implemented.
-    
+
       ## Examples:
-    
+
         iex> Week3.Main.FIFOQueue.start_link()
         iex> Week3.Main.FIFOQueue.push(4)
         iex> Week3.Main.FIFOQueue.pop()
