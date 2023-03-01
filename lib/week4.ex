@@ -4,7 +4,6 @@ defmodule Week4.Minimal.Worker do
   # CLIENT
 
   def start_link(args) do
-    IO.puts("[#{__MODULE__}]: Started at #{inspect(self())}")
     GenServer.start_link(__MODULE__, args)
   end
 
@@ -26,6 +25,7 @@ defmodule Week4.Minimal.Worker do
   # SERVER
 
   def init(_init_args) do
+    IO.puts("[#{__MODULE__}]: Started at #{inspect(self())}.")
     {:ok, []}
   end
 
@@ -61,7 +61,6 @@ defmodule Week4.Main.Split do
   use GenServer
 
   def start_link(args) do
-    IO.puts("[#{__MODULE__}] started at pid #{inspect(self())}")
     GenServer.start_link(__MODULE__, args)
   end
 
@@ -71,6 +70,7 @@ defmodule Week4.Main.Split do
 
   @impl true
   def init(stack) do
+    IO.puts("[#{__MODULE__}] started at pid #{inspect(self())}")
     {:ok, stack}
   end
 
@@ -104,7 +104,6 @@ defmodule Week4.Main.Nomster do
   use GenServer
 
   def start_link(args) do
-    IO.puts("[#{__MODULE__}] started at pid #{inspect(self())}")
     GenServer.start_link(__MODULE__, args)
   end
 
@@ -114,6 +113,7 @@ defmodule Week4.Main.Nomster do
 
   @impl true
   def init(stack) do
+    IO.puts("[#{__MODULE__}] started at pid #{inspect(self())}")
     {:ok, stack}
   end
 
@@ -150,12 +150,12 @@ defmodule Week4.Main.Join do
   use GenServer
 
   def start_link(args) do
-    IO.puts("[#{__MODULE__}] started at pid #{inspect(self())}")
     GenServer.start_link(__MODULE__, args)
   end
 
   @impl true
   def init(stack) do
+    IO.puts("[#{__MODULE__}] started at pid #{inspect(self())}")
     {:ok, stack}
   end
 
@@ -296,3 +296,81 @@ end
 #     loop(sup, sensors)
 #   end
 # end
+
+defmodule Week4.Bonus.PulpFiction do
+  defmodule Jules do
+    use GenServer
+
+    def start_link do
+      questions = [
+        "What does Marsellus Wallace look like?",
+        "What country you from?",
+        "What ain't no country I ever heard of. They speak English in what?",
+        "English motherfucker. Do you speak it?",
+        "Then you know what I'm saying",
+        "Describe what Marsellus Wallace looks like",
+        "Say what again. Say what again. I dare you, not dare you, I double dare you motherfucker. Say what one more goddamn time.",
+        "Go on.",
+        "Does he look like a bitch?"
+      ]
+
+      GenServer.start_link(__MODULE__, [questions], name: __MODULE__)
+    end
+
+    def init(questions) do
+      {:ok, {nil, questions}}
+    end
+  end
+
+  defmodule Brett do
+    use GenServer
+
+    def start_link do
+      GenServer.start(__MODULE__, [], name: __MODULE__)
+    end
+
+    def init(state) do
+      {:ok, state}
+    end
+
+    def handle_info(:timeout, state) do
+      :ok = Process.sleep(1_000)
+      {:noreply, state}
+    end
+
+    def handle_cast({:ask, pid, ref, question}, state) do
+      answer =
+        case question do
+          "What does Marsellus Wallace look like?" ->
+            "What?"
+
+          "What country you from?" ->
+            "What?"
+
+          "What ain't no country I ever heard of. They speak English in what?" ->
+            "What?"
+
+          "English motherfucker. Do you speak it?" ->
+            "Yes"
+
+          "Then you know what I'm saying" ->
+            "Yes"
+
+          "Describe what Marsellus Wallace looks like" ->
+            "What?"
+
+          "Say what again. Say what again. I dare you, not dare you, I double dare you motherfucker. Say what one more goddamn time." ->
+            "He's black."
+
+          "Go on." ->
+            "He's bald."
+
+          "Does he look like a bitch?" ->
+            "What?"
+        end
+
+      send(pid, {:answer, ref, answer})
+      {:noreply, state}
+    end
+  end
+end
