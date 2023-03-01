@@ -297,80 +297,99 @@ end
 #   end
 # end
 
-defmodule Week4.Bonus.PulpFiction do
-  defmodule Jules do
-    use GenServer
+defmodule Week4.Bonus.Brett do
+  use GenServer
 
-    def start_link do
-      questions = [
-        "What does Marsellus Wallace look like?",
-        "What country you from?",
-        "What ain't no country I ever heard of. They speak English in what?",
-        "English motherfucker. Do you speak it?",
-        "Then you know what I'm saying",
-        "Describe what Marsellus Wallace looks like",
-        "Say what again. Say what again. I dare you, not dare you, I double dare you motherfucker. Say what one more goddamn time.",
-        "Go on.",
-        "Does he look like a bitch?"
-      ]
-
-      GenServer.start_link(__MODULE__, [questions], name: __MODULE__)
-    end
-
-    def init(questions) do
-      {:ok, {nil, questions}}
-    end
+  def start_link do
+    GenServer.start_link(__MODULE__, [], [])
   end
 
-  defmodule Brett do
-    use GenServer
+  def init([]) do
+    {:ok, nil}
+  end
 
-    def start_link do
-      GenServer.start(__MODULE__, [], name: __MODULE__)
-    end
+  def handle_call({:ask, ref, message}, _from, _state) do
+    answer =
+      case message do
+        "What does Marsellus Wallace look like?" ->
+          "What?"
 
-    def init(state) do
-      {:ok, state}
-    end
+        "What country you from?" ->
+          "What?"
 
-    def handle_info(:timeout, state) do
-      :ok = Process.sleep(1_000)
-      {:noreply, state}
-    end
+        "What ain't no country I ever heard of. They speak English in what?" ->
+          "What?"
 
-    def handle_cast({:ask, pid, ref, question}, state) do
-      answer =
-        case question do
-          "What does Marsellus Wallace look like?" ->
-            "What?"
+        "English motherfucker. Do you speak it?" ->
+          "Yes"
 
-          "What country you from?" ->
-            "What?"
+        "Then you know what I'm saying" ->
+          "Yes"
 
-          "What ain't no country I ever heard of. They speak English in what?" ->
-            "What?"
+        "Describe what Marsellus Wallace looks like" ->
+          "What?"
 
-          "English motherfucker. Do you speak it?" ->
-            "Yes"
+        "Say what again. Say what again. I dare you, not dare you, I double dare you motherfucker. Say what one more goddamn time." ->
+          "Well he's... he's... black."
 
-          "Then you know what I'm saying" ->
-            "Yes"
+        "Go on." ->
+          "...and he's... he's... bald"
 
-          "Describe what Marsellus Wallace looks like" ->
-            "What?"
+        "Does he look like a bitch?" ->
+          "What?"
+      end
 
-          "Say what again. Say what again. I dare you, not dare you, I double dare you motherfucker. Say what one more goddamn time." ->
-            "He's black."
+    Process.sleep(1_000)
+    {:reply, {:answer, ref, answer}, nil}
+  end
+end
 
-          "Go on." ->
-            "He's bald."
+defmodule Week4.Bonus.Jules do
+  def start_link do
+    questions = [
+      "What does Marsellus Wallace look like?",
+      "What country you from?",
+      "What ain't no country I ever heard of. They speak English in what?",
+      "English motherfucker. Do you speak it?",
+      "Then you know what I'm saying",
+      "Describe what Marsellus Wallace looks like",
+      "Say what again. Say what again. I dare you, not dare you, I double dare you motherfucker. Say what one more goddamn time.",
+      "Go on.",
+      "Does he look like a bitch?"
+    ]
 
-          "Does he look like a bitch?" ->
-            "What?"
-        end
+    GenServer.start_link(__MODULE__, questions, [])
+  end
 
-      send(pid, {:answer, ref, answer})
-      {:noreply, state}
+  def init(questions) do
+    loop(nil, questions)
+    {:ok, questions}
+  end
+
+  def loop(nil, questions) do
+    {:ok, brett_pid} = Brett.start_link()
+
+    loop({self(), brett_pid}, questions)
+  end
+
+  def loop({_monitor_ref, brett_pid}, []) do
+    Process.exit(brett_pid, :shoot)
+    IO.puts("--- Jules shot Brett. END. --- ")
+
+    {:stop, :normal, []}
+  end
+
+  def loop({monitor_ref, brett_pid}, [question | questions]) do
+    question_ref = make_ref()
+    reply = GenServer.call(brett_pid, {:ask, question_ref, question})
+
+    IO.puts("** JULES ** - #{question}")
+
+    case reply do
+      {:answer, _ref, answer} ->
+        Process.sleep(1_000)
+        IO.puts("** BRETT ** - #{answer}\n")
+        loop({monitor_ref, brett_pid}, questions)
     end
   end
 end
