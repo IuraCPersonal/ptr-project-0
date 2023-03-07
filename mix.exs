@@ -15,7 +15,7 @@ defmodule PtrProject0.MixProject do
   def application do
     [
       applications: [:httpoison, :crawly, :json],
-      extra_applications: [:logger, :crawly, :floki]
+      extra_applications: [:logger, :crawly, :floki, :plug_cowboy]
     ]
   end
 
@@ -27,7 +27,11 @@ defmodule PtrProject0.MixProject do
       {:crawly, "~> 0.14.0"},
       {:floki, "~> 0.33.0"},
       {:httpoison, "~> 1.7"},
-      {:json, "~> 1.4"}
+      {:json, "~> 1.4"},
+      # This will pull in Plug AND Cowboy
+      {:plug_cowboy, "~> 2.0"},
+      # Latest version as of this writing
+      {:poison, "~> 3.1"}
     ]
   end
 end
