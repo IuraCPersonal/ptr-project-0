@@ -16,7 +16,7 @@ All the solutions are written in `Elixir`.
 | WEEK 02   | `10`   |
 | WEEK 03   | `9`    |
 | WEEK 04   | `9` |
-| WEEK 05   | `NONE` |
+| WEEK 05   | `8` |
 
 ## ✨ TASKS
 
